@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="MintMVP Console REST API — authenticate with API keys and manage specs, tasks, tests, incidents, reports, and deployments programmatically." />
+		<meta name="theme-color" content="#09090b" />
+		<title>MintMVP Console — API Documentation</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+		<link rel="stylesheet" href="./styles.css" />
+	</head>
+	<body>
+		<header class="site-header">
+			<a class="brand" href="./">MintMVP · API Docs</a>
+			<button type="button" class="nav-mobile-toggle" id="nav-toggle" aria-expanded="false" aria-controls="doc-sidebar">Menu</button>
+		</header>
+
+		<section class="hero" aria-label="Introduction">
+			<div class="hero-inner">
+				<h1>REST API for MintMVP Console</h1>
+				<p>
+					Use project-scoped API keys against <a href="https://console.mintmvp.com/projects" target="_blank" rel="noopener noreferrer">console.mintmvp.com</a> to create and list specs, tasks, tests, incidents, reports, and deployments —
+					the same surface as the in-app <strong>API → Docs</strong> page.
+				</p>
+				<div class="hero-actions">
+					<button type="button" class="btn btn-primary" id="hero-scroll-docs">Read the docs</button>
+					<a class="btn btn-secondary" href="#configure">Configure base URL</a>
+					<a class="btn btn-secondary" href="https://console.mintmvp.com/projects" target="_blank" rel="noopener noreferrer">Open console</a>
+				</div>
+			</div>
+		</section>
+
+		<div class="shell">
+			<aside class="sidebar" id="doc-sidebar" aria-label="Documentation sections">
+				<p class="sidebar-title">On this page</p>
+				<a href="#docs">Overview</a>
+				<a href="#configure">Base URL</a>
+				<a href="#authentication">Authentication</a>
+				<a href="#endpoints">Endpoints</a>
+				<a href="#errors">Error codes</a>
+				<a href="#server">Server setup</a>
+			</aside>
+
+			<main class="content">
+				<section id="docs">
+					<h2 style="margin: 0 0 0.5rem; font-size: 2rem">Documentation</h2>
+					<p class="muted">Reference for <code class="inline-code">/api/v1/projects/:id/...</code> routes.</p>
+				</section>
+
+				<section id="configure" style="margin-top: 2rem">
+					<div class="card">
+						<h3>Base URL</h3>
+						<p class="muted">
+							Production console: <code class="inline-code">https://console.mintmvp.com</code>. Values below are saved in your browser only.
+						</p>
+						<div class="card" style="margin-top: 1rem; padding: 1rem 1.25rem; background: rgba(76, 29, 149, 0.12); border-color: rgba(124, 58, 237, 0.35)">
+							<p style="margin: 0 0 0.5rem; font-weight: 700; color: var(--foreground)">Where to get the project UUID</p>
+							<p class="muted" style="margin: 0">
+								In the Console, open any project. The address bar looks like:<br />
+								<code class="inline-code" style="display: inline-block; margin-top: 0.5rem"
+									>https://console.mintmvp.com/projects/<strong>&lt;project-uuid&gt;</strong>/overview</code><br />
+								(you might see <code class="inline-code">/tasks</code>, <code class="inline-code">/api</code>, etc. instead of <code class="inline-code">/overview</code>).<br />
+								Copy the <strong>first path segment after</strong> <code class="inline-code">/projects/</code> — that
+								36-character hyphenated string is your project UUID. Paste it into “Project ID” below.
+							</p>
+						</div>
+						<div class="config-bar" style="margin-top: 1.25rem">
+							<div class="config-field">
+								<label for="cfg-origin">Console origin</label>
+								<input id="cfg-origin" type="url" placeholder="https://console.mintmvp.com" autocomplete="off" />
+							</div>
+							<div class="config-field">
+								<label for="cfg-project">Project ID (UUID from URL)</label>
+								<input id="cfg-project" type="text" placeholder="e.g. a1b2c3d4-e5f6-7890-abcd-ef1234567890" autocomplete="off" />
+							</div>
+						</div>
+						<p class="label" style="margin-top: 1rem">Resolved base URL</p>
+						<div id="base-url-value" class="base-url-display" role="status"></div>
+						<p class="muted" style="margin-top: 0.75rem; font-size: 0.85rem">
+							Tip: append <code class="inline-code">?origin=https://console.mintmvp.com&amp;project=&lt;uuid&gt;</code> to this page to prefill.
+						</p>
+					</div>
+				</section>
+
+				<section id="authentication" style="margin-top: 1.5rem">
+					<div class="card">
+						<h3>Authentication</h3>
+						<p>Every request must send your secret key in the <code class="inline-code">Authorization</code> header:</p>
+						<pre class="block" style="margin-top: 1rem">Authorization: Bearer mint_your_api_key_here</pre>
+						<p class="muted" style="margin-top: 1rem">
+							Create keys in the app under <strong>Project → API → API Keys</strong>. Keys start with <code class="inline-code">mint_</code> and are tied to one project.
+						</p>
+					</div>
+				</section>
+
+				<section id="endpoints" style="margin-top: 1.5rem">
+					<h3 style="margin: 0 0 1rem; font-size: 1.5rem">Endpoints</h3>
+					<p class="muted">Click a row to expand <strong>GET</strong> and <strong>POST</strong> examples.</p>
+					<div id="endpoints-root"></div>
+				</section>
+
+				<section id="errors" style="margin-top: 1.5rem">
+					<div class="card">
+						<h3>Error codes</h3>
+						<div style="margin-top: 1rem; overflow: hidden; border-radius: 8px; border: 1px solid var(--border)">
+							<table>
+								<thead>
+									<tr>
+										<th>Code</th>
+										<th>Meaning</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>200</td>
+										<td class="muted">Success</td>
+									</tr>
+									<tr>
+										<td>201</td>
+										<td class="muted">Created</td>
+									</tr>
+									<tr>
+										<td>400</td>
+										<td class="muted">Bad request (missing required fields)</td>
+									</tr>
+									<tr>
+										<td>401</td>
+										<td class="muted">Unauthorized (invalid or missing API key)</td>
+									</tr>
+									<tr>
+										<td>403</td>
+										<td class="muted">Forbidden (key does not belong to this project)</td>
+									</tr>
+									<tr>
+										<td>500</td>
+										<td class="muted">Internal server error</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</section>
+
+				<!-- <section id="server" style="margin-top: 1.5rem">
+					<div class="warn">
+						<h3 style="margin: 0 0 0.5rem">Server configuration</h3>
+						<p class="muted" style="margin: 0">
+							The hosted console must have <code class="inline-code">SUPABASE_SERVICE_ROLE_KEY</code> set in its environment so the API can validate keys and access data (Supabase Dashboard → Settings → API → service_role). Never expose this secret in the browser.
+						</p>
+					</div>
+				</section> -->
+			</main>
+		</div>
+
+		<footer class="site-footer">MintMVP Console · Static API reference · Not affiliated with your deployment unless you host this file.</footer>
+
+		<script src="./script.js" defer></script>
+	</body>
+</html>
