@@ -344,6 +344,16 @@ main.content {
 	color: var(--blue);
 }
 
+.badge-patch {
+	background: rgba(245, 158, 11, 0.2);
+	color: #fbbf24;
+}
+
+.badge-delete {
+	background: rgba(239, 68, 68, 0.2);
+	color: #f87171;
+}
+
 /* Endpoint accordion */
 .endpoint {
 	border: 1px solid var(--border);

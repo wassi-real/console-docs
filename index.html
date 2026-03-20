@@ -97,7 +97,7 @@
 
 				<section id="endpoints" style="margin-top: 1.5rem">
 					<h3 style="margin: 0 0 1rem; font-size: 1.5rem">Endpoints</h3>
-					<p class="muted">Click a row to expand <strong>GET</strong> and <strong>POST</strong> examples.</p>
+					<p class="muted">Click a row to expand <strong>GET</strong>, <strong>POST</strong>, <strong>PATCH</strong>, and <strong>DELETE</strong> examples.</p>
 					<div id="endpoints-root"></div>
 				</section>
 
@@ -115,15 +115,15 @@
 								<tbody>
 									<tr>
 										<td>200</td>
-										<td class="muted">Success</td>
+										<td class="muted">Success (GET, PATCH, DELETE)</td>
 									</tr>
 									<tr>
 										<td>201</td>
-										<td class="muted">Created</td>
+										<td class="muted">Created (POST)</td>
 									</tr>
 									<tr>
 										<td>400</td>
-										<td class="muted">Bad request (missing required fields)</td>
+										<td class="muted">Bad request (missing required fields or no updatable fields)</td>
 									</tr>
 									<tr>
 										<td>401</td>
@@ -132,6 +132,10 @@
 									<tr>
 										<td>403</td>
 										<td class="muted">Forbidden (key does not belong to this project)</td>
+									</tr>
+									<tr>
+										<td>404</td>
+										<td class="muted">Not found (item does not exist or belongs to another project)</td>
 									</tr>
 									<tr>
 										<td>500</td>
