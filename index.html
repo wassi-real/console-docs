@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="description" content="MintMVP Console REST API — authenticate with API keys and manage specs, tasks, tests, incidents, reports, and deployments programmatically." />
+		<meta name="description" content="MintMVP Console REST API — specs, tasks, milestones & slices, tests, incidents, reports; authenticate with API keys." />
 		<meta name="theme-color" content="#09090b" />
 		<title>MintMVP Console — API Documentation</title>
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -21,8 +21,7 @@
 			<div class="hero-inner">
 				<h1>REST API for MintMVP Console</h1>
 				<p>
-					Use project-scoped API keys against <a href="https://console.mintmvp.com/projects" target="_blank" rel="noopener noreferrer">console.mintmvp.com</a> to create and list specs, tasks, tests, incidents, reports, and deployments —
-					the same surface as the in-app <strong>API → Docs</strong> page.
+					Use project-scoped API keys against <a href="https://console.mintmvp.com/projects" target="_blank" rel="noopener noreferrer">console.mintmvp.com</a> to manage specs, tasks, tests, incidents, and reports — plus use the console for GitHub-linked branches and CI, environments, pipeline overview, monitoring (including an optional public status URL), and finance.
 				</p>
 				<div class="hero-actions">
 					<button type="button" class="btn btn-primary" id="hero-scroll-docs">Read the docs</button>
@@ -36,17 +35,87 @@
 			<aside class="sidebar" id="doc-sidebar" aria-label="Documentation sections">
 				<p class="sidebar-title">On this page</p>
 				<a href="#docs">Overview</a>
+				<a href="#features">Console Features</a>
 				<a href="#configure">Base URL</a>
 				<a href="#authentication">Authentication</a>
 				<a href="#endpoints">Endpoints</a>
+				<a href="#milestones-api">Milestones API</a>
+				<a href="#reports-api">Reports API</a>
+				<a href="#github">GitHub Integration</a>
+				<a href="#public-status">Public status</a>
+				<a href="#enums">Enum Values</a>
 				<a href="#errors">Error codes</a>
-				<a href="#server">Server setup</a>
 			</aside>
 
 			<main class="content">
 				<section id="docs">
 					<h2 style="margin: 0 0 0.5rem; font-size: 2rem">Documentation</h2>
-					<p class="muted">Reference for <code class="inline-code">/api/v1/projects/:id/...</code> routes.</p>
+					<p class="muted">REST API reference and console feature overview for <code class="inline-code">/api/v1/projects/:id/...</code> routes.</p>
+				</section>
+
+				<section id="features" style="margin-top: 2rem">
+					<div class="card">
+						<h3>Console Features</h3>
+						<p class="muted">The MintMVP Console provides a complete project management dashboard with these modules:</p>
+						<div class="features-grid" style="margin-top: 1.25rem">
+							<div class="feature-item">
+								<div class="feature-header">
+									<span class="feature-icon" style="background: rgba(124, 58, 237, 0.2); color: var(--primary)">&#9654;</span>
+									<strong>Pipeline</strong>
+								</div>
+								<p class="muted" style="margin: 0.5rem 0 0; font-size: 0.9rem">Visual 6-stage overview (Spec → Dev → Testing → Staging → Production → Monitoring) derived from your project data. No manual setup required.</p>
+							</div>
+							<div class="feature-item">
+								<div class="feature-header">
+									<span class="feature-icon" style="background: rgba(34, 197, 94, 0.2); color: var(--green)">&#127760;</span>
+									<strong>Environments</strong>
+								</div>
+								<p class="muted" style="margin: 0.5rem 0 0; font-size: 0.9rem">Manage Development, Staging, and Production environments with URL, version, deploy status, and health indicators.</p>
+							</div>
+							<div class="feature-item">
+								<div class="feature-header">
+									<span class="feature-icon" style="background: rgba(239, 68, 68, 0.2); color: var(--red)">&#128147;</span>
+									<strong>Monitoring</strong>
+								</div>
+								<p class="muted" style="margin: 0.5rem 0 0; font-size: 0.9rem">System health dashboard with uptime status (up/down/degraded), error and warning counts, and open incidents. Owners and developers can publish a read-only page at <code class="inline-code">/status/&lt;token&gt;</code> for clients (no login).</p>
+							</div>
+							<div class="feature-item">
+								<div class="feature-header">
+									<span class="feature-icon" style="background: rgba(245, 158, 11, 0.2); color: var(--amber)">&#9874;</span>
+									<strong>Tests (Enhanced)</strong>
+								</div>
+								<p class="muted" style="margin: 0.5rem 0 0; font-size: 0.9rem">Extended with E2E test type, plus optional spec and task linking via <code class="inline-code">spec_id</code> and <code class="inline-code">task_id</code> fields.</p>
+							</div>
+							<div class="feature-item">
+								<div class="feature-header">
+									<span class="feature-icon" style="background: rgba(167, 139, 250, 0.15); color: var(--primary)">&#128209;</span>
+									<strong>Full CRUD API</strong>
+								</div>
+								<p class="muted" style="margin: 0.5rem 0 0; font-size: 0.9rem">REST endpoints for specs, tasks, tests, incidents, and reports with GET, POST, PATCH, DELETE support.</p>
+							</div>
+							<div class="feature-item">
+								<div class="feature-header">
+									<span class="feature-icon" style="background: rgba(36, 41, 47, 0.3); color: var(--foreground)">&#128025;</span>
+									<strong>GitHub Integration</strong>
+								</div>
+								<p class="muted" style="margin: 0.5rem 0 0; font-size: 0.9rem">Connect via GitHub App to auto-sync branches, pull requests, commits, and GitHub Actions runs. Periodic refresh while you use the project plus optional webhooks.</p>
+							</div>
+							<div class="feature-item">
+								<div class="feature-header">
+									<span class="feature-icon" style="background: rgba(59, 130, 246, 0.2); color: var(--blue)">&#9654;</span>
+									<strong>CI / CD</strong>
+								</div>
+								<p class="muted" style="margin: 0.5rem 0 0; font-size: 0.9rem">View GitHub Actions workflow runs and GitHub-linked environment signals synced from your repository.</p>
+							</div>
+							<div class="feature-item">
+								<div class="feature-header">
+									<span class="feature-icon" style="background: rgba(34, 197, 94, 0.2); color: var(--green)">&#128176;</span>
+									<strong>Finance</strong>
+								</div>
+								<p class="muted" style="margin: 0.5rem 0 0; font-size: 0.9rem">Track project milestones, payments, and expenses. Overview with budget, paid, pending, and outstanding balance summaries.</p>
+							</div>
+						</div>
+					</div>
 				</section>
 
 				<section id="configure" style="margin-top: 2rem">
@@ -99,6 +168,117 @@
 					<h3 style="margin: 0 0 1rem; font-size: 1.5rem">Endpoints</h3>
 					<p class="muted">Click a row to expand <strong>GET</strong>, <strong>POST</strong>, <strong>PATCH</strong>, and <strong>DELETE</strong> examples.</p>
 					<div id="endpoints-root"></div>
+				</section>
+
+				<section id="milestones-api" style="margin-top: 1.5rem">
+					<div class="card">
+						<h3>Milestones API</h3>
+						<p class="muted">
+							<code class="inline-code">GET /api/v1/projects/&lt;project_id&gt;/milestones</code> lists milestones with nested <strong>slices</strong> and <strong>linked_task_ids</strong>.
+							<code class="inline-code">GET .../milestones/&lt;milestone_id&gt;</code> returns one milestone with full detail.
+							<code class="inline-code">POST</code>, <code class="inline-code">PATCH</code>, and <code class="inline-code">DELETE</code> on those paths create, partially update (merge), and delete milestones with validation aligned to the Milestones UI.
+							List and detail responses include
+							<code class="inline-code">meta.phase_descriptions</code> (short text per lifecycle phase key).
+						</p>
+						<p class="muted" style="margin-top: 0.75rem">
+							Full details in
+							<a href="./api-milestones.md">docs/api-milestones.md</a>.
+						</p>
+					</div>
+				</section>
+
+				<section id="reports-api" style="margin-top: 1.5rem">
+					<div class="card">
+						<h3>Reports API</h3>
+						<p class="muted">
+							<code class="inline-code">GET /api/v1/projects/&lt;project_id&gt;/reports</code> returns all reports (<strong>data</strong>), all report folders (<strong>folders</strong>), and <strong>meta.reports_by_folder</strong> with <strong>uncategorized</strong> plus one array per folder id.
+							<code class="inline-code">GET .../reports/&lt;report_id&gt;</code> returns the report and <strong>meta.folder</strong> when it belongs to a folder.
+							<code class="inline-code">POST</code> / <code class="inline-code">PATCH</code> accept optional <strong>folder_id</strong>.
+						</p>
+						<p class="muted" style="margin-top: 0.75rem">
+							Full details in <a href="./api-reports.md">docs/api-reports.md</a>.
+						</p>
+					</div>
+				</section>
+
+				<section id="github" style="margin-top: 1.5rem">
+					<div class="card">
+						<h3>GitHub Integration</h3>
+						<p class="muted">Connect your GitHub repository to auto-sync development data into MintMVP Console.</p>
+
+						<h4 style="margin-top: 1rem">Setup</h4>
+						<ol class="muted" style="padding-left: 1.5rem; font-size: 0.9rem">
+							<li>Create a <strong>GitHub App</strong> with repository permissions: <strong>Contents</strong> (read), <strong>Pull requests</strong> (read), <strong>Actions</strong> (read), and <strong>Metadata</strong> (read). Enable <strong>Webhooks</strong>. Add <strong>Deployments</strong> (read) if you want GitHub deploy events in CI sync.</li>
+							<li>Set webhook URL to <code class="inline-code">https://your-domain/api/github/webhook</code></li>
+							<li>Add env vars: <code class="inline-code">GITHUB_APP_ID</code>, <code class="inline-code">GITHUB_APP_PRIVATE_KEY</code>, <code class="inline-code">GITHUB_WEBHOOK_SECRET</code></li>
+							<li>Install the App on your org and connect via <strong>Settings &gt; Integrations &gt; GitHub</strong> in the console.</li>
+						</ol>
+
+						<h4 style="margin-top: 1rem">Webhook Endpoint</h4>
+						<p class="muted" style="font-size: 0.9rem">
+							<code class="inline-code">POST /api/github/webhook</code> — receives GitHub webhook events. Signature is verified with <code class="inline-code">x-hub-signature-256</code>. Events are deduplicated by <code class="inline-code">x-github-delivery</code>.
+						</p>
+
+						<h4 style="margin-top: 1rem">Handled Events</h4>
+						<table style="margin-top: 0.5rem">
+							<thead><tr><th>Event</th><th>Synced Data</th></tr></thead>
+							<tbody>
+								<tr><td><code class="inline-code">push</code></td><td>Branches + commits</td></tr>
+								<tr><td><code class="inline-code">pull_request</code></td><td>Pull requests (open/merged/closed)</td></tr>
+								<tr><td><code class="inline-code">workflow_run</code></td><td>CI run status</td></tr>
+							</tbody>
+						</table>
+
+						<h4 style="margin-top: 1rem">Synced Tables</h4>
+						<p class="muted" style="font-size: 0.9rem">
+							<code class="inline-code">github_branches</code>,
+							<code class="inline-code">github_pull_requests</code>,
+							<code class="inline-code">github_commits</code>,
+							<code class="inline-code">github_ci_runs</code>
+						</p>
+					</div>
+				</section>
+
+				<section id="public-status" style="margin-top: 1.5rem">
+					<div class="card">
+						<h3>Public monitoring status</h3>
+						<p class="muted">
+							From <strong>Project → Monitoring</strong>, owners and developers can publish a read-only status page. Visitors open
+							<code class="inline-code">https://&lt;your-console-host&gt;/status/&lt;token&gt;</code> with no account. The server loads project health
+							and incident counts using <code class="inline-code">SUPABASE_SERVICE_ROLE_KEY</code> after validating the URL token; the key never
+							ships to the browser.
+						</p>
+						<p class="muted" style="margin-top: 0.75rem; font-size: 0.9rem">
+							Requires the <code class="inline-code">project_monitoring_public</code> table from Supabase migrations. You can stop publishing or rotate the token anytime from the same Monitoring screen.
+						</p>
+					</div>
+				</section>
+
+				<section id="enums" style="margin-top: 1.5rem">
+					<div class="card">
+						<h3>Accepted Enum Values</h3>
+						<p class="muted">Status and type fields are validated server-side. Common aliases are mapped automatically.</p>
+						<div style="margin-top: 1rem; overflow: hidden; border-radius: 8px; border: 1px solid var(--border)">
+							<table>
+								<thead>
+									<tr>
+										<th>Resource</th>
+										<th>Field</th>
+										<th>Accepted Values</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr><td>Specs</td><td class="muted">status</td><td class="muted"><code class="inline-code">draft</code>, <code class="inline-code">approved</code>, <code class="inline-code">in_dev</code>, <code class="inline-code">completed</code></td></tr>
+									<tr><td>Tasks</td><td class="muted">status</td><td class="muted"><code class="inline-code">backlog</code>, <code class="inline-code">in_progress</code>, <code class="inline-code">review</code>, <code class="inline-code">testing</code>, <code class="inline-code">deployed</code></td></tr>
+									<tr><td>Tasks</td><td class="muted">priority</td><td class="muted"><code class="inline-code">low</code>, <code class="inline-code">medium</code>, <code class="inline-code">high</code>, <code class="inline-code">critical</code></td></tr>
+									<tr><td>Tests</td><td class="muted">type</td><td class="muted"><code class="inline-code">unit</code>, <code class="inline-code">integration</code>, <code class="inline-code">e2e</code>, <code class="inline-code">smoke</code>, <code class="inline-code">manual</code></td></tr>
+									<tr><td>Tests</td><td class="muted">status</td><td class="muted"><code class="inline-code">pass</code>, <code class="inline-code">fail</code>, <code class="inline-code">pending</code></td></tr>
+									<tr><td>Incidents</td><td class="muted">severity</td><td class="muted"><code class="inline-code">low</code>, <code class="inline-code">medium</code>, <code class="inline-code">high</code>, <code class="inline-code">critical</code></td></tr>
+									<tr><td>Incidents</td><td class="muted">status</td><td class="muted"><code class="inline-code">open</code>, <code class="inline-code">investigating</code>, <code class="inline-code">resolved</code></td></tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
 				</section>
 
 				<section id="errors" style="margin-top: 1.5rem">
@@ -158,7 +338,7 @@
 			</main>
 		</div>
 
-		<footer class="site-footer">MintMVP Console · Static API reference · Not affiliated with your deployment unless you host this file.</footer>
+		<footer class="site-footer">MintMVP Console · Static API reference · Not affiliated with your hosting unless you serve this file yourself.</footer>
 
 		<script src="./script.js" defer></script>
 	</body>

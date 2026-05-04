@@ -29,6 +29,92 @@
 			del: { desc: 'Delete a spec' }
 		},
 		{
+			id: 'milestones',
+			label: 'Milestones',
+			singular: 'milestone',
+			paramName: 'milestoneId',
+			get: {
+				desc: 'List milestones with nested slices and linked_task_ids',
+				response:
+					'{ "data": [ { …milestone columns…, "slices": [...], "linked_task_ids": ["uuid"] } ], "meta": { "phase_descriptions": { "discovery": "…", … } } }'
+			},
+			getOne: {
+				desc: 'Get one milestone (full row + sorted slices + linked_task_ids)',
+				response:
+					'{ "data": { …milestone…, "slices": [...], "linked_task_ids": [...] }, "meta": { "phase_descriptions": { … } } }'
+			},
+			post: {
+				desc: 'Create a milestone (same validation as the Milestones UI)',
+				body:
+					'{ "title": "Beta launch", "description": "Ship MVP", "estimate": "40h", "due_date": "2026-05-01", "approval_owner_user_id": "<org-user-uuid>", "entry_gate": "Spec approved", "exit_gate": "Deployed to prod", "test_gate_required_tests": "Smoke + regression", "test_gate_pass_threshold": "100% smoke", "test_gate_environment": "staging", "linked_task_ids": [], "slices": [] }',
+				required: [
+					'title',
+					'description',
+					'estimate',
+					'due_date',
+					'approval_owner_user_id',
+					'entry_gate',
+					'exit_gate',
+					'test_gate_required_tests',
+					'test_gate_pass_threshold',
+					'test_gate_environment'
+				],
+				optional: [
+					'priority',
+					'phase',
+					'spec_id',
+					'owner_user_id',
+					'notes',
+					'dependencies',
+					'risks_blockers',
+					'deliverables',
+					'amount',
+					'status',
+					'paid_date',
+					'attach_bill',
+					'bill_amount',
+					'bill_status',
+					'linked_task_ids',
+					'slices',
+					'slices_json'
+				]
+			},
+			patch: {
+				desc: 'Update a milestone (partial merge)',
+				body: '{ "title": "Beta launch (delayed)" }',
+				optional: [
+					'title',
+					'description',
+					'estimate',
+					'due_date',
+					'approval_owner_user_id',
+					'entry_gate',
+					'exit_gate',
+					'test_gate_required_tests',
+					'test_gate_pass_threshold',
+					'test_gate_environment',
+					'priority',
+					'phase',
+					'spec_id',
+					'owner_user_id',
+					'notes',
+					'dependencies',
+					'risks_blockers',
+					'deliverables',
+					'amount',
+					'status',
+					'paid_date',
+					'attach_bill',
+					'bill_amount',
+					'bill_status',
+					'linked_task_ids',
+					'slices',
+					'slices_json'
+				]
+			},
+			del: { desc: 'Delete a milestone' }
+		},
+		{
 			id: 'tasks',
 			label: 'Tasks',
 			singular: 'task',
@@ -55,18 +141,18 @@
 			singular: 'test',
 			get: {
 				desc: 'List all tests',
-				response: '{ "data": [ { id, name, type, status, last_run, notes } ] }'
+				response: '{ "data": [ { id, name, type, status, last_run, notes, spec_id, task_id } ] }'
 			},
 			post: {
 				desc: 'Create a test',
-				body: '{ "name": "Login flow", "type": "integration", "status": "pending" }',
+				body: '{ "name": "Login flow", "type": "e2e", "status": "pending" }',
 				required: ['name'],
-				optional: ['type', 'status', 'notes']
+				optional: ['type', 'status', 'notes', 'spec_id', 'task_id']
 			},
 			patch: {
 				desc: 'Update a test (partial)',
 				body: '{ "status": "pass", "notes": "All assertions passed" }',
-				optional: ['name', 'type', 'status', 'last_run', 'notes']
+				optional: ['name', 'type', 'status', 'last_run', 'notes', 'spec_id', 'task_id']
 			},
 			del: { desc: 'Delete a test' }
 		},
@@ -95,43 +181,28 @@
 			id: 'reports',
 			label: 'Reports',
 			singular: 'report',
+			paramName: 'reportId',
 			get: {
-				desc: 'List all reports',
-				response: '{ "data": [ { id, title, content, created_by, ... } ] }'
+				desc: 'List all reports plus folders and meta.reports_by_folder',
+				response:
+					'{ "data": [...reports], "folders": [...], "meta": { "reports_by_folder": { "uncategorized": [...], "<folder_uuid>": [...] } } }'
+			},
+			getOne: {
+				desc: 'Get one report; meta.folder when report has folder_id',
+				response: '{ "data": { …report… }, "meta": { "folder": null | { …folder… } } }'
 			},
 			post: {
 				desc: 'Create a report',
-				body: '{ "title": "Sprint 1 Summary", "content": "# Report\\n..." }',
+				body: '{ "title": "Sprint 1 Summary", "content": "# Report\\n...", "folder_id": "<uuid>" }',
 				required: ['title'],
-				optional: ['content']
+				optional: ['content', 'folder_id']
 			},
 			patch: {
 				desc: 'Update a report (partial)',
-				body: '{ "title": "Sprint 1 Summary (final)", "content": "# Updated\\n..." }',
-				optional: ['title', 'content']
+				body: '{ "folder_id": null, "title": "...", "content": "..." }',
+				optional: ['title', 'content', 'folder_id']
 			},
 			del: { desc: 'Delete a report' }
-		},
-		{
-			id: 'deployments',
-			label: 'Deployments',
-			singular: 'deployment',
-			get: {
-				desc: 'List all deployments',
-				response: '{ "data": [ { id, version, environment, status, notes, ... } ] }'
-			},
-			post: {
-				desc: 'Log a deployment',
-				body: '{ "version": "v1.2.0", "environment": "production", "status": "success" }',
-				required: ['version'],
-				optional: ['environment', 'status', 'notes']
-			},
-			patch: {
-				desc: 'Update a deployment (partial)',
-				body: '{ "status": "failed", "notes": "Rolled back due to errors" }',
-				optional: ['version', 'environment', 'status', 'notes']
-			},
-			del: { desc: 'Delete a deployment' }
 		}
 	];
 
@@ -202,9 +273,54 @@
 		const root = document.getElementById('endpoints-root');
 		if (!root) return;
 
-		root.innerHTML = endpoints
-			.map(
-				(ep) => `
+		root.innerHTML = endpoints.map((ep) => renderEndpointCard(ep)).join('');
+
+		root.querySelectorAll('.endpoint-header').forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const card = btn.closest('.endpoint');
+				const open = card.classList.toggle('is-open');
+				btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+			});
+		});
+
+		updateBaseUrlDisplay();
+	}
+
+	function renderEndpointCard(ep) {
+		if (ep.readOnly) {
+			const param = ep.paramName || 'id';
+			return `
+			<div class="endpoint" data-endpoint="${ep.id}">
+				<button type="button" class="endpoint-header" aria-expanded="false" aria-controls="panel-${ep.id}">
+					<div class="endpoint-title">
+						<span class="badge badge-get">GET</span>
+						<span class="endpoint-path">/${ep.id}</span>
+					</div>
+					<span class="endpoint-chevron" aria-hidden="true">▼</span>
+				</button>
+				<div class="endpoint-body" id="panel-${ep.id}">
+					<div class="stack">
+						<div>
+							<div class="block-title"><span class="badge badge-get">GET</span> ${escapeHtml(ep.get.desc)}</div>
+							<p class="label">curl</p>
+							<pre class="block" data-curl-get data-path="${ep.id}"></pre>
+							<p class="label">Response</p>
+							<pre class="block">${escapeHtml(ep.get.response)}</pre>
+						</div>
+						<div>
+							<div class="block-title"><span class="badge badge-get">GET</span> ${escapeHtml(ep.getOne.desc)}</div>
+							<p class="muted">Path: <code class="inline-code">/${ep.id}/&lt;${param}&gt;</code></p>
+							<p class="label">curl</p>
+							<pre class="block" data-curl-get-single data-path="${ep.id}"></pre>
+							<p class="label">Response</p>
+							<pre class="block">${escapeHtml(ep.getOne.response)}</pre>
+						</div>
+						<p class="muted">Read-only — create and edit milestones in the console UI.</p>
+					</div>
+				</div>
+			</div>`;
+		}
+		return `
 			<div class="endpoint" data-endpoint="${ep.id}">
 				<button type="button" class="endpoint-header" aria-expanded="false" aria-controls="panel-${ep.id}">
 					<div class="endpoint-title">
@@ -269,19 +385,7 @@
 						}
 					</div>
 				</div>
-			</div>`
-			)
-			.join('');
-
-		root.querySelectorAll('.endpoint-header').forEach((btn) => {
-			btn.addEventListener('click', () => {
-				const card = btn.closest('.endpoint');
-				const open = card.classList.toggle('is-open');
-				btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-			});
-		});
-
-		updateBaseUrlDisplay();
+			</div>`;
 	}
 
 	function escapeHtml(s) {
